@@ -31,3 +31,42 @@ export const Debounce = (fn, delay) => {
     }, delay)
   }
 }
+
+/**
+ * 
+ * @param {Record<string,any>[]} obja 
+ * @param {Record<string,any>[]} objb 
+ * @param {string} key
+ * @returns { {type:'add'|'remove', value: any}[] }
+ */
+export const diff = (obja, objb) => {
+  if (obja.length === objb.length){
+    return [];
+  }
+  const objAStr = obja.map(JSON.stringify);
+  const objBStr = objb.map(JSON.stringify);
+  if (obja.length > objb.length){
+    const res = [];
+    for (let i=0;i<objAStr.length;i++){
+      if (!objBStr.includes(objAStr[i])){
+        res.push({
+          type: 'add',
+          value: obja[i]
+        })
+      }
+    }
+    return res;
+  }
+  if (obja.length < objb.length){
+    const res = [];
+    for (let i=0;i<objBStr.length;i++){
+      if (!objAStr.includes(objBStr[i])){
+        res.push({
+          type: 'remove',
+          value: i
+        })
+      }
+    }
+    return res;
+  }
+}

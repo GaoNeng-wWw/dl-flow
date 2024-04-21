@@ -1,9 +1,14 @@
 import { Graph, Path } from '@antv/x6'
 import { register } from '@antv/x6-vue-shape'
-import { AlgoNode, GroupNode } from '@opentiny/tiny-engine-canvas'
+import { AlgoNode, GroupNode, SourceNode } from '@opentiny/tiny-engine-canvas'
 import { Selection } from '@antv/x6-plugin-selection'
 import { Keyboard } from '@antv/x6-plugin-keyboard'
-import { Notify } from '@opentiny/vue';
+
+/**
+ * @typedef {Object} Port
+ * @prop {'top'|'bottom'} position
+ * @prop {number} connectLimit
+ */
 /**
  * @typedef {Object}
  * @prop {'L1Decay' | 'L2Decay'} type
@@ -34,12 +39,14 @@ import { Notify } from '@opentiny/vue';
 /**
  * @typedef {Object} MaterialInfo - 物料信息
  * @prop {string} id 用于标识以及转码时候插入
+ * @prop {'dag-node'|'source-node'} shape
  * @prop {{zh_CN: string, en_US: string}} label - 物料名称
  * @prop {string|undefined} nnName - 如果为网络，网络名称
  * @prop {string} desc - 简介
  * @prop {boolean} nn - 是否为网络
  * @prop {'nn'|'layer'|'backbone'|'utils'} mode
  * @prop {Property[]} properties - 配置信息
+ * @prop {Port[]} [ports]
  */
 /**
  * @typedef {{materials: MaterialInfo[]}} Materials
@@ -53,11 +60,10 @@ import { Notify } from '@opentiny/vue';
  * @type {Graph|null}
  */
 let g = null
-/**
- * 
- * @param {import('@antv/x6').Cell} node 
- */
-const isGroup = (node) => node.shape.includes('group');
+
+const validateDirection = (source, target) => (source.port.includes('in') && target.port.includes('out')) ||
+(source.port.includes('out') && target.port.includes('in'));
+
 /** @type {import('@antv/x6').Graph.Options} */
 const DEFAULT_OPTION = {
   background: {
@@ -111,47 +117,23 @@ const DEFAULT_OPTION = {
       })
     },
     validateEdge(args) {
-      const {
-        edge: { source, target },
-      } = args
-      const [sourceCell, targetCell] = [g.getCellById(source.cell), g.getCellById(target.cell)];
+      const {edge: {source,target}} = args;
+      const [sourceCell,targetCell] = [g.getCellById(source.cell), g.getCellById(target.cell)];
       if (!sourceCell.isNode() || !targetCell.isNode()){
         return false;
       }
-      if (!isGroup(sourceCell) && !isGroup(targetCell)){
-        if (sourceCell.getParentId() !== targetCell.getParentId()){
-          Notify({
-            type: 'error',
-            message: '不允许越过组进行连接',
-            position: 'top-right'
-          })
-          return false;
-        }
+      const targetData = targetCell.getData();
+      if (!targetData.ports){
+        return g.getIncomingEdges(target.cell).length <= 1 && validateDirection(source,target)
+      }
+      if (targetData.ports[0].connectLimit === -1){
         return (source.port.includes('in') && target.port.includes('out')) ||
-        (source.port.includes('out') && target.port.includes('in'))
+                (source.port.includes('out') && target.port.includes('in'));
       }
-      if (isGroup(sourceCell) || isGroup(targetCell)){
-        const group = isGroup(sourceCell) ? sourceCell : targetCell;
-        const node = isGroup(sourceCell) ? targetCell : sourceCell;
-        if (group.isParentOf(node)){
-          return (source.port.includes('out') && target.port.includes('out'))
-        }
-        if (group.getParentId() === node.getParentId()){
-          return (source.port.includes('in') && target.port.includes('out')) ||
-                 (source.port.includes('out') && target.port.includes('in'))
-        }
-      }
-      if (isGroup(sourceCell) || isGroup(targetCell)) {
-        Notify({
-          type: 'error',
-          message: '不允许组嵌套',
-          position: 'top-right'
-        })
+      if (g.getIncomingEdges(target.cell).length > targetData.ports[0].connectLimit){
         return false;
       }
-
-      return (source.port.includes('in') && target.port.includes('out')) ||
-              (source.port.includes('out') && target.port.includes('in'))
+      return validateDirection(source,target);
     }
   }
 }
@@ -174,6 +156,40 @@ const graphPreapre = () => {
     },
     true
   )
+  register({
+    shape: 'source-node',
+    witdh: 180,
+    height:36,
+    component: SourceNode,
+    ports: {
+      groups: {
+        top: {
+          position: 'top',
+          attrs: {
+            circle: {
+              r: 4,
+              magnet: true,
+              stroke: '#C2C8D5',
+              strokeWidth: 1,
+              fill: '#fff'
+            }
+          }
+        },
+        bottom: {
+          position: 'bottom',
+          attrs: {
+            circle: {
+              r: 4,
+              magnet: true,
+              stroke: '#C2C8D5',
+              strokeWidth: 1,
+              fill: '#fff'
+            }
+          }
+        }
+      }
+    }
+  })
   register({
     shape: 'dag-node',
     width: 180,
@@ -301,8 +317,10 @@ const processDefaultValue = (property, externalType) => {
  *
  * @param {MaterialInfo} info
  * @param {{[x:string]:import('./useResource').Type[]}} types
+ * @prop {string} [nodeName]
  */
-const addNode = (info, types) => {
+const addNode = (info, types, nodeName='dag-node') => {
+  console.log(nodeName);
   const g = getCanvas()
   if (info.properties) {
     info.properties = info.properties.map((p) => {
@@ -320,6 +338,9 @@ const addNode = (info, types) => {
           case 'any':
             data = '';
             break;
+          case 'list':
+            data = [...p.default];
+            break;
           case 'ParamAttr':
             data = processDefaultValue(p, types)
             break
@@ -332,7 +353,7 @@ const addNode = (info, types) => {
     })
   }
   const node = g.addNode({
-    shape: 'dag-node',
+    shape: nodeName,
     data: {
       ...info
     },
@@ -349,7 +370,7 @@ const addNode = (info, types) => {
   })
   if (!g.getSelectedCellCount()) {
     g.centerCell(node)
-    return
+    return node;
   }
   const selectNode = g.getSelectedCells().sort((a, b) => a.getBBox().bottom - b.getBBox().bottom)[0]
   const {
@@ -358,6 +379,7 @@ const addNode = (info, types) => {
   } = selectNode.getBBox()
   const { height } = node.getSize()
   node.setPosition({ x: x, y: bottom + height })
+  return node;
 }
 /**
  * @template T
@@ -419,6 +441,7 @@ const useX6 = (id, option) => {
       const selectCells = g.getSelectedCells()
       g.removeCells(selectCells)
     })
+    window.__x6_instances__ = [g]
   }
   return { g: g, addNode, getCanvas, getData, GROUP_PADDING, reRender}
 }

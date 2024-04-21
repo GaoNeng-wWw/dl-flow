@@ -1,5 +1,8 @@
 <template>
   <div class="wrapper" v-loading="loading">
+    <div @click="addStartSource">
+      <span>前向推理入口</span>
+    </div>
     <template v-for="(item, idx) of nn" :key="idx">
       <div @click="() => onClickNN(item)">
         <span>{{ item.label.zh_CN }}</span>
@@ -12,12 +15,15 @@
 import { useResource, useX6 } from '@opentiny/tiny-engine-controller'
 import { Loading } from '@opentiny/vue'
 const { fetchNN, resState } = useResource()
-const { nn } = await fetchNN()
+const { nn, loading } = await fetchNN()
 const vLoading = Loading.directive
 const { addNode } = useX6()
 /** @param {import('@opentiny/tiny-engine-controller/useX6').MaterialInfo} item */
 const onClickNN = (item) => {
-  addNode(item, resState.types)
+  addNode(item, resState.types, item.shape)
+}
+const addStartSource = () => {
+  addNode({label: '前向推理参数'},{}, 'source-node');
 }
 </script>
 

@@ -57,6 +57,61 @@
     },
     "materials": [
       {
+        "id": "concat",
+        "mode": "",
+        "label": {
+          "en_US": "concat",
+          "zh_CN": "链接"
+        },
+        "properties": [],
+        "ports": [
+          {
+            "position": "top",
+            "connectLimit": -1
+          }
+        ]
+      },
+      {
+        "id": "start",
+        "mode": "",
+        "shape": "source-node",
+        "label": {
+          "en_US": "forward",
+          "zh_CN": "前向推理"
+        },
+        "properties": [
+          {
+            "id": "argName",
+            "type": "list",
+            "items": "string",
+            "label": {
+              "en_US": "Arg names",
+              "zh_CN": "参数名"
+            }
+          }
+        ]
+      },
+      {
+        "id": "end",
+        "mode": "",
+        "shape": "source-node",
+        "label": {
+          "en_US": "forward",
+          "zh_CN": "前向推理"
+        },
+        "properties": [
+          {
+            "id": "argName",
+            "type": "list",
+            "items": "string",
+            "label": {
+              "en_US": "Arg names",
+              "zh_CN": "参数名"
+            }
+          }
+        ]
+      },
+      {
         "id": "AdaptiveAvgPool1D",
         "mode": "nn",
         "label": {

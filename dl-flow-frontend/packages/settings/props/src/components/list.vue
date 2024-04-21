@@ -8,7 +8,7 @@
                         <plus class="widget__plus" @click="triggerVisible = triggerVisible === idx ? -1 : idx" />
                     </template>
                     <div>
-                        <t-button type="danger" @click="deleteItem">
+                        <t-button type="danger" @click="()=>deleteItem(idx)">
                             确认
                         </t-button>
                         <t-button @click="triggerVisible=false">
@@ -18,7 +18,7 @@
                 </popover>
             </div>
         </t-form-item>
-        <t-button @click="()=>data.push(0)" style="margin-top: 16px;">
+        <t-button @click="appendEmptyDataItem" style="margin-top: 16px;">
             添加元素
         </t-button>
     </t-form>
@@ -40,7 +40,10 @@ const record = {
 }
 const plus = IconPlus();
 const emits = defineEmits(['update:modelValue'])
-const data = ref([...props.defaultValue]);
+const data = ref([...props.modelValue]);
+if (!data.value.length){
+    data.value = [...props.defaultValue];
+}
 const triggerVisible = ref(-1);
 /**
  * @param {number} idx
@@ -48,6 +51,9 @@ const triggerVisible = ref(-1);
 const deleteItem = (idx)=>{
     data.value.splice(idx,1);
     triggerVisible.value = -1;
+}
+const appendEmptyDataItem = ()=>{
+    data.value.push('');
 }
 watch(data, () => {
     emits('update:modelValue', data.value)

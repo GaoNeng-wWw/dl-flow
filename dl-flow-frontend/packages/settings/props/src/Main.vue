@@ -43,7 +43,10 @@ const shouldShow = computed(() => {
      * @type {import('../../../controller/src/useX6.js').MaterialInfo}
      */
     const data = v.getData()
-    return data?.mode && (data.mode === 'nn' ? true : Boolean(data.properties?.length))
+    if (data.mode){
+      return data.mode === 'nn' ? true : Boolean(data.properties?.length)
+    }
+    return Boolean(data.properties?.length)
   })
 })
 
@@ -74,6 +77,7 @@ onMounted(() => {
   onSelection();
 })
 const onUpdate = ({ properties, id }) => {
+  // debugger;
   if (!g) {
     return
   }
@@ -82,8 +86,11 @@ const onUpdate = ({ properties, id }) => {
     return
   }
   const data = cell.getData()
-  data.properties = properties
-  cell.setData(data)
+  // data.properties = properties
+  cell.setData({
+    ...data,
+    properties,
+  }, {overwrite:false})
   if (g){
     updateSchema(g.toJSON());
   }
