@@ -66,7 +66,13 @@ watch(
           <enums v-model="data[property.id].data" mouse-wheel :controls="false" :min="0" v-if="property.type === 'enums'" :data="property.enums" />
           <t-check-box v-model="data[property.id].data" :default-value="data[property.id].default" v-if="property.type === 'boolean'" />
           <param-attr v-model="data[property.id].data" v-if="property.type === 'ParamAttr'" />
-          <list v-model="data[property.id].data" :default-value="data[property.id].default" :property="property" v-if="property.type === 'list'" />
+          <list 
+            v-model="data[property.id].data"
+            :default-value="data[property.id].default"
+            :property="property"
+            :cell-id="props.cellId"
+            v-if="property.type === 'list'"
+          />
         </t-form-item>
       </template>
     </t-form>

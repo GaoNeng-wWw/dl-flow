@@ -201,6 +201,36 @@
           "items": {
             "$ref": "#/definitions/properties"
           }
+        },
+        "ports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "position": {
+                "type": "string",
+                "enum": ["top", "bottom"]
+              },
+              "connectLimit": {
+                "type": "number",
+                "default": 1,
+                "description": "如果为-1则表示不限制"
+              }
+            },
+            "required": ["position", "connectLimit"]
+          }
+        },
+        "onlyIn": {
+          "type": "boolean",
+          "default": false
+        },
+        "onlyOut":{
+          "type": "boolean",
+          "default": false
+        },
+        "shape": {
+          "type": "string",
+          "enum": ["dag-node", "source-node"]
         }
       },
       "required": ["id", "label", "mode", "properties"]

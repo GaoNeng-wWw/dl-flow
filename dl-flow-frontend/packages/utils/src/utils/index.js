@@ -325,3 +325,28 @@ function _deepClone(target, map) {
 export function deepClone(target) {
   return _deepClone(target, new WeakMap())
 }
+
+/**
+ * 
+ * @param {any[]} obja 
+ * @param {any[]} objb 
+ * @returns { {type:'+'|'-', value: any}[] }
+ */
+export const diff = (obja, objb) => {
+  if (!obja.length){
+    return objb.map((item) => ({type: '-', value: item}))
+  }
+  const res = [];
+  const type = obja.length > objb.length ? '+' : '-';
+  for (const item of obja){
+    if (!objb.includes(item)){
+      res.push({type, value:item});
+    }
+  }
+  for (const item of objb){
+    if (!obja.includes(item)){
+      res.push({type, value:item});
+    }
+  }
+  return res;
+}

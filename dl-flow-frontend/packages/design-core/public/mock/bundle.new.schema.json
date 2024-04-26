@@ -1,0 +1,41 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "bundle",
+    "type": "object",
+    "definitions": {
+        "label": {
+          "type": "object",
+          "properties": {
+            "zh_CN": {
+              "type": "string",
+              "default": ""
+            },
+            "en_US": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          "required": ["zh_CN", "en_US"]
+        },
+        "properties": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "网络ID, 会在转码的时候作为方法名使用",
+                    "type": "string"
+                },
+                "label": {
+                    "$ref": "#/definitions/label"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": ["string", "number", "boolean", "enums", "ParamAttr", "list"]
+                },
+                "required": {
+                  "description": "该设置是否是必选",
+                  "type": "boolean"
+                },
+            }
+        }
+    }
+}

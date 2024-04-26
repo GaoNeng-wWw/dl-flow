@@ -21,6 +21,11 @@ export type Property = {
   data: any;
 };
 
+export type Port = {
+  position: 'top' | 'bottom';
+  connectLimit: number;
+};
+
 export const isProperty = (object: unknown | unknown[]) => {
   if (Array.isArray(object)) {
     return false;

@@ -34,6 +34,7 @@ const fail = ref(_fail)
  */
 const wrapper = ref(null)
 node.on('change:data', ({ current }) => {
+  console.log(current);
   if (current.label !== label.value) {
     if (current?.label instanceof Object && !Array.isArray(current.label)){
       label.value = current.label[locale.value];

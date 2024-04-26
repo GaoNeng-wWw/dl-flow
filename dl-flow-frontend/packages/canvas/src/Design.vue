@@ -8,6 +8,8 @@
 import CanvasContainer from './index'
 
 import formJSON from '../test/form.json'
+import { onMounted } from 'vue';
+import { useX6 } from '@/controller/src';
 
 const controller = {
   getPageSchema() {
@@ -44,6 +46,7 @@ const controller = {
 }
 
 const nodeSelected = () => {}
+
 </script>
 
 <style>
