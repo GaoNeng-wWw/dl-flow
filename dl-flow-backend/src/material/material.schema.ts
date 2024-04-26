@@ -19,6 +19,10 @@ export class Material {
   ports: Port[];
   @Prop({ type: () => String })
   shape: string;
+  @Prop({ type: () => Boolean })
+  onlyIn: boolean;
+  @Prop({ type: () => Boolean })
+  onlyOut: boolean;
 }
 
 export const MaterialSchema = SchemaFactory.createForClass(Material);

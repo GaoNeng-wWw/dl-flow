@@ -47,6 +47,8 @@ import { Keyboard } from '@antv/x6-plugin-keyboard'
  * @prop {'nn'|'layer'|'backbone'|'utils'} mode
  * @prop {Property[]} properties - 配置信息
  * @prop {Port[]} [ports]
+ * @prop {boolean} [onlyIn]
+ * @prop {boolean} [onlyOut]
  */
 /**
  * @typedef {{materials: MaterialInfo[]}} Materials
@@ -320,7 +322,6 @@ const processDefaultValue = (property, externalType) => {
  * @prop {string} [nodeName]
  */
 const addNode = (info, types, nodeName='dag-node') => {
-  console.log(nodeName);
   const g = getCanvas()
   if (info.properties) {
     info.properties = info.properties.map((p) => {
@@ -357,8 +358,8 @@ const addNode = (info, types, nodeName='dag-node') => {
     data: {
       ...info
     },
-    ports: [
-      {
+    ports: info.shape === 'source-node' ? [] :
+      [{
         id: 'in',
         group: 'top'
       },

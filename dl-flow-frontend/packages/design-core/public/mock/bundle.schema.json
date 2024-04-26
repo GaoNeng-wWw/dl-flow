@@ -220,6 +220,14 @@
             "required": ["position", "connectLimit"]
           }
         },
+        "onlyIn": {
+          "type": "boolean",
+          "default": false
+        },
+        "onlyOut":{
+          "type": "boolean",
+          "default": false
+        },
         "shape": {
           "type": "string",
           "enum": ["dag-node", "source-node"]

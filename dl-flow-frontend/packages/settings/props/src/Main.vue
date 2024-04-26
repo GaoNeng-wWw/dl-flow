@@ -86,11 +86,10 @@ const onUpdate = ({ properties, id }) => {
     return
   }
   const data = cell.getData()
-  // data.properties = properties
   cell.setData({
     ...data,
     properties,
-  }, {overwrite:false})
+  })
   if (g){
     updateSchema(g.toJSON());
   }
